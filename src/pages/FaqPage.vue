@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ArrowRight } from 'lucide-vue-next'
 import {
   Accordion,
   AccordionContent,
@@ -31,28 +30,25 @@ const faqs = [
 
 <template>
   <section class="mx-auto max-w-6xl px-6 py-20">
-    <SectionHeading
-      kicker="Technical FAQ"
-      title="Your IT Team Will Ask. We Answered."
-    />
-    <Accordion type="single" collapsible class="max-w-3xl">
+    <SectionHeading label="04 — FAQ" title="What your IT team will ask." />
+    <Accordion type="single" collapsible class="max-w-3xl border-t">
       <AccordionItem v-for="faq in faqs" :key="faq.q" :value="faq.q">
-        <AccordionTrigger class="text-base">{{ faq.q }}</AccordionTrigger>
-        <AccordionContent class="text-[15px]">{{ faq.a }}</AccordionContent>
+        <AccordionTrigger class="py-6 text-base">{{ faq.q }}</AccordionTrigger>
+        <AccordionContent class="text-[15px] leading-relaxed">{{ faq.a }}</AccordionContent>
       </AccordionItem>
     </Accordion>
+  </section>
 
-    <div v-reveal class="glass mt-20 rounded-xl border p-10 text-center">
-      <h2 class="text-2xl font-bold text-foreground md:text-3xl">Still have questions?</h2>
-      <p class="mx-auto mt-3 max-w-lg text-muted-foreground">
-        Book a site audit. We analyze your token volume, concurrency, and server room — and size
-        the exact node your workload needs.
+  <section class="border-t">
+    <div class="mx-auto max-w-6xl px-6 py-28 text-center">
+      <h2 v-reveal class="text-4xl font-extrabold tracking-tight text-foreground md:text-6xl">
+        Own your inference.
+      </h2>
+      <p v-reveal="100" class="mx-auto mt-5 max-w-md text-lg text-muted-foreground">
+        A site audit sizes the exact node your workload needs.
       </p>
-      <Button size="lg" class="mt-7" as-child>
-        <a href="mailto:audit@ironnode.example?subject=Site%20Audit%20Request">
-          Book a Site Audit
-          <ArrowRight />
-        </a>
+      <Button v-reveal="200" size="lg" class="mt-10" as-child>
+        <a href="mailto:audit@ironnode.example?subject=Site%20Audit%20Request">Book a site audit</a>
       </Button>
     </div>
   </section>

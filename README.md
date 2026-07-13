@@ -1,8 +1,10 @@
 # IRONNODE — Enterprise AI Infrastructure, Entirely On-Premise
 
-Marketing site for an on-premise AI hardware company. Multi-page Vue 3 app with a
+Marketing site for an on-premise AI hardware company. Multi-page Vue 3 app in a
+Swiss-style dark-navy / off-white duotone, with a CSS-3D server node hero, a
 plain-language savings (TCO) calculator, hardware fleet specifications, deployment
-pipeline, and technical FAQ.
+pipeline, and technical FAQ. Pages are numbered 01–04 and chained with
+"Next" bands so visitors follow one journey: hardware → savings → process → FAQ.
 
 ## Stack
 
