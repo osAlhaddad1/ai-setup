@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-vue-next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import InteractiveCard from '@/components/InteractiveCard.vue'
 import {
   Table,
   TableBody,
@@ -37,26 +38,24 @@ const specs = [
     />
 
     <div class="mb-16 grid gap-6 md:grid-cols-3">
-      <Card
-        v-for="tier in TIERS"
-        :key="tier.id"
-        class="transition-all hover:-translate-y-1 hover:border-primary/50"
-      >
-        <CardHeader>
-          <Badge variant="led" class="w-fit">{{ tier.name }}</Badge>
-          <CardTitle class="pt-2 text-xl">{{ tier.label }}</CardTitle>
-          <CardDescription>{{ tier.useCase }}</CardDescription>
-        </CardHeader>
-        <CardContent class="space-y-1 font-mono text-sm text-muted-foreground">
-          <div>{{ specs[1].values[tier.id - 1] }}</div>
-          <div>{{ specs[2].values[tier.id - 1] }} VRAM</div>
-          <div>{{ specs[6].values[tier.id - 1] }} draw</div>
-        </CardContent>
-      </Card>
+      <div v-for="(tier, index) in TIERS" :key="tier.id" v-reveal="index * 100">
+        <InteractiveCard class="h-full transition-all hover:-translate-y-1 hover:border-primary/50">
+          <CardHeader>
+            <Badge variant="led" class="w-fit">{{ tier.name }}</Badge>
+            <CardTitle class="pt-2 text-xl">{{ tier.label }}</CardTitle>
+            <CardDescription>{{ tier.useCase }}</CardDescription>
+          </CardHeader>
+          <CardContent class="space-y-1 font-mono text-sm text-muted-foreground">
+            <div>{{ specs[1].values[tier.id - 1] }}</div>
+            <div>{{ specs[2].values[tier.id - 1] }} VRAM</div>
+            <div>{{ specs[6].values[tier.id - 1] }} draw</div>
+          </CardContent>
+        </InteractiveCard>
+      </div>
     </div>
 
     <h2 class="mb-6 text-2xl font-bold text-foreground">Full Specifications</h2>
-    <Card class="overflow-hidden">
+    <Card v-reveal class="glass-subtle overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow class="bg-background/50 hover:bg-background/50">

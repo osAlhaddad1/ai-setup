@@ -16,7 +16,7 @@ const mobileOpen = ref(false)
 </script>
 
 <template>
-  <header class="sticky top-0 z-50 border-b bg-card/85 backdrop-blur-md">
+  <header class="glass-subtle sticky top-0 z-50 border-b">
     <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
       <RouterLink to="/" class="flex items-center gap-2.5" @click="mobileOpen = false">
         <BrandMark />

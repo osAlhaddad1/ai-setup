@@ -37,6 +37,7 @@ const stack = ['vLLM', 'Docker', 'Kubernetes', 'Qdrant', 'Milvus', 'pgvector', '
       <div
         v-for="(step, index) in steps"
         :key="step.title"
+        v-reveal="index * 120"
         class="relative border-t-2 border-border pt-6 lg:[&:not(:last-child)]:after:absolute lg:[&:not(:last-child)]:after:-top-[5px] lg:[&:not(:last-child)]:after:left-0 lg:[&:not(:last-child)]:after:h-2 lg:[&:not(:last-child)]:after:w-2 lg:[&:not(:last-child)]:after:rounded-full"
       >
         <span
@@ -65,7 +66,7 @@ const stack = ['vLLM', 'Docker', 'Kubernetes', 'Qdrant', 'Milvus', 'pgvector', '
           <Badge v-for="item in stack" :key="item" variant="outline">{{ item }}</Badge>
         </div>
       </div>
-      <Card class="overflow-hidden shadow-2xl shadow-black/40">
+      <Card v-reveal="150" class="glass overflow-hidden">
         <CardContent class="overflow-x-auto p-6">
           <pre class="font-mono text-[13px] leading-relaxed"><code><span class="text-muted-foreground"># Before: cloud provider</span>
 <span class="text-foreground">curl</span> <span class="text-led">https://api.cloud-provider.com/v1/chat/completions</span> \

@@ -3,8 +3,10 @@ import { RouterLink } from 'vue-router'
 import { ArrowRight, Check, Landmark, Pencil, ShieldCheck, X, Zap } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import InteractiveCard from '@/components/InteractiveCard.vue'
 import SectionHeading from '@/components/SectionHeading.vue'
 import TerminalCard from '@/components/TerminalCard.vue'
+import TiltCard from '@/components/TiltCard.vue'
 
 const valueProps = [
   {
@@ -54,7 +56,7 @@ const localBenefits = [
       aria-hidden="true"
     />
     <div class="mx-auto grid max-w-6xl items-center gap-14 px-6 py-24 lg:grid-cols-[7fr_5fr]">
-      <div>
+      <div v-reveal>
         <span class="mb-4 block font-mono text-xs font-medium uppercase tracking-[0.2em] text-primary">
           // Sovereign AI Infrastructure
         </span>
@@ -78,26 +80,26 @@ const localBenefits = [
           </Button>
         </div>
       </div>
-      <TerminalCard />
+      <TiltCard v-reveal="150">
+        <TerminalCard />
+      </TiltCard>
     </div>
   </section>
 
   <!-- Value props -->
   <section class="mx-auto max-w-6xl px-6 pb-24">
     <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      <Card
-        v-for="prop in valueProps"
-        :key="prop.title"
-        class="transition-all hover:-translate-y-1 hover:border-primary/50"
-      >
-        <CardContent class="p-7">
-          <div class="mb-5 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15">
-            <component :is="prop.icon" class="h-5 w-5 text-primary" />
-          </div>
-          <h3 class="mb-2 font-semibold text-foreground">{{ prop.title }}</h3>
-          <p class="text-sm leading-relaxed text-muted-foreground">{{ prop.body }}</p>
-        </CardContent>
-      </Card>
+      <div v-for="(prop, index) in valueProps" :key="prop.title" v-reveal="index * 100">
+        <InteractiveCard class="h-full transition-all hover:-translate-y-1 hover:border-primary/50">
+          <CardContent class="p-7">
+            <div class="mb-5 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15">
+              <component :is="prop.icon" class="h-5 w-5 text-primary" />
+            </div>
+            <h3 class="mb-2 font-semibold text-foreground">{{ prop.title }}</h3>
+            <p class="text-sm leading-relaxed text-muted-foreground">{{ prop.body }}</p>
+          </CardContent>
+        </InteractiveCard>
+      </div>
     </div>
   </section>
 
@@ -110,7 +112,7 @@ const localBenefits = [
         lede="Cloud AI introduces variable operational costs and security vulnerabilities. On-premise deployment converts your AI infrastructure into a fixed, secure capital asset with zero external dependencies."
       />
       <div class="grid gap-6 md:grid-cols-2">
-        <Card class="bg-transparent">
+        <Card v-reveal class="bg-transparent">
           <CardContent class="p-8">
             <h3 class="mb-6 text-lg font-semibold text-foreground">Cloud API Providers</h3>
             <ul class="space-y-4">
@@ -125,7 +127,7 @@ const localBenefits = [
             </ul>
           </CardContent>
         </Card>
-        <Card class="relative border-primary/50">
+        <Card v-reveal="150" class="glass relative border-primary/50">
           <span
             class="absolute -top-3 left-6 rounded bg-primary px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-widest text-primary-foreground"
           >

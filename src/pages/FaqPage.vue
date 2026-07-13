@@ -42,7 +42,7 @@ const faqs = [
       </AccordionItem>
     </Accordion>
 
-    <div class="mt-20 rounded-xl border bg-card/50 p-10 text-center">
+    <div v-reveal class="glass mt-20 rounded-xl border p-10 text-center">
       <h2 class="text-2xl font-bold text-foreground md:text-3xl">Still have questions?</h2>
       <p class="mx-auto mt-3 max-w-lg text-muted-foreground">
         Book a site audit. We analyze your token volume, concurrency, and server room — and size

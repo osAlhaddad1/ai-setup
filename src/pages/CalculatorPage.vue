@@ -172,7 +172,7 @@ const barWidth = computed(() => {
       </Card>
 
       <!-- Results -->
-      <Card class="h-fit bg-background/60 lg:sticky lg:top-24">
+      <Card class="glass h-fit lg:sticky lg:top-24">
         <CardContent class="space-y-7 p-8" aria-live="polite">
           <div>
             <div class="font-mono text-[11px] uppercase tracking-[0.15em] text-muted-foreground">

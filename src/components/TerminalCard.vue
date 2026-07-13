@@ -24,7 +24,7 @@ const rows = [
 
 <template>
   <div
-    class="overflow-hidden rounded-xl border bg-card font-mono text-[13px] shadow-2xl shadow-black/40"
+    class="glass overflow-hidden rounded-xl border font-mono text-[13px]"
   >
     <div class="flex items-center gap-2 border-b px-4 py-3">
       <span class="h-2.5 w-2.5 rounded-full bg-secondary" />
