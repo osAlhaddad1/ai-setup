@@ -2,7 +2,7 @@
 import { RouterLink } from 'vue-router'
 import { ArrowRight } from 'lucide-vue-next'
 
-/** End-of-page band pointing to the next stop in the site journey. */
+/** End-of-page CTA band pointing to the next stop in the site journey. */
 defineProps<{
   to: string
   index: string
@@ -13,16 +13,16 @@ defineProps<{
 <template>
   <RouterLink
     :to="to"
-    class="group mt-24 flex items-center justify-between border-t py-10 transition-colors hover:bg-card"
+    class="group block bg-primary text-primary-foreground transition-opacity hover:opacity-90"
   >
-    <div class="mx-auto flex w-full max-w-6xl items-center justify-between px-6">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-14">
       <div>
-        <span class="label-caps">Next — {{ index }}</span>
-        <div class="mt-1 text-2xl font-bold text-foreground md:text-4xl">{{ title }}</div>
+        <span class="text-xs font-semibold uppercase tracking-[0.18em] text-primary-foreground/60">
+          Next — {{ index }}
+        </span>
+        <div class="mt-2 text-3xl font-extrabold tracking-tight md:text-5xl">{{ title }}</div>
       </div>
-      <ArrowRight
-        class="h-8 w-8 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-2 group-hover:text-foreground"
-      />
+      <ArrowRight class="h-10 w-10 shrink-0 transition-transform group-hover:translate-x-2" />
     </div>
   </RouterLink>
 </template>

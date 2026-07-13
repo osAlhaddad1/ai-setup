@@ -2,220 +2,196 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 
 /**
- * A CSS-3D server node — the product itself as the hero visual.
- * Drag to spin it freely (with inertia); it keeps a slow idle rotation
- * when left alone. Navy body on the off-white page.
+ * A CSS-3D server node built from 21 solid shards.
+ * It follows the cursor from anywhere on the page; hovering it shatters
+ * the shards across the hero, and they reassemble when the cursor leaves.
  */
+const ROWS = 7
+const COLS = 3
+const PIECE_W = 80
+const PIECE_H = 54
+
+interface Piece {
+  row: number
+  col: number
+  style: Record<string, string>
+}
+
+function scatter(range: number, min = 0): number {
+  const sign = Math.random() < 0.5 ? -1 : 1
+  return sign * (min + Math.random() * range)
+}
+
+const pieces: Piece[] = []
+for (let row = 0; row < ROWS; row++) {
+  for (let col = 0; col < COLS; col++) {
+    pieces.push({
+      row,
+      col,
+      style: {
+        left: `${col * PIECE_W}px`,
+        top: `${row * PIECE_H}px`,
+        '--sx': `${scatter(320, 140).toFixed(0)}px`,
+        '--sy': `${scatter(220, 60).toFixed(0)}px`,
+        '--sz': `${(-140 + Math.random() * 480).toFixed(0)}px`,
+        '--rx': `${scatter(160).toFixed(0)}deg`,
+        '--ry': `${scatter(160).toFixed(0)}deg`,
+        '--rz': `${scatter(120).toFixed(0)}deg`,
+        '--d': `${(Math.random() * 0.12).toFixed(3)}s`,
+      },
+    })
+  }
+}
+
+const shattered = ref(false)
 const yaw = ref(-28)
 const pitch = ref(-10)
-const dragging = ref(false)
-
-let lastX = 0
-let lastY = 0
-let velocity = 0
-let raf = 0
 let reducedMotion = false
 
-function onDown(event: PointerEvent) {
-  dragging.value = true
-  velocity = 0
-  lastX = event.clientX
-  lastY = event.clientY
-  ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
+function onWindowMove(event: PointerEvent) {
+  const px = event.clientX / window.innerWidth
+  const py = event.clientY / window.innerHeight
+  yaw.value = -28 + (px - 0.5) * 30
+  pitch.value = -10 + (0.5 - py) * 14
 }
 
-function onMove(event: PointerEvent) {
-  if (!dragging.value) return
-  const dx = event.clientX - lastX
-  const dy = event.clientY - lastY
-  lastX = event.clientX
-  lastY = event.clientY
-  yaw.value += dx * 0.45
-  pitch.value = Math.min(12, Math.max(-38, pitch.value - dy * 0.3))
-  velocity = dx * 0.45
-}
-
-function onUp() {
-  dragging.value = false
-}
-
-function tick() {
-  if (!dragging.value) {
-    if (Math.abs(velocity) > 0.05) {
-      yaw.value += velocity
-      velocity *= 0.94
-    } else {
-      yaw.value += 0.1
-    }
-  }
-  raf = requestAnimationFrame(tick)
+function onEnter() {
+  if (!reducedMotion) shattered.value = true
 }
 
 onMounted(() => {
   reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  if (!reducedMotion) raf = requestAnimationFrame(tick)
+  if (!reducedMotion) window.addEventListener('pointermove', onWindowMove)
 })
-onUnmounted(() => cancelAnimationFrame(raf))
-
-type Unit = { kind: 'display' | 'drives' | 'vent' }
-const units: Unit[] = [
-  { kind: 'display' },
-  { kind: 'drives' },
-  { kind: 'vent' },
-  { kind: 'drives' },
-  { kind: 'vent' },
-  { kind: 'drives' },
-  { kind: 'vent' },
-]
+onUnmounted(() => window.removeEventListener('pointermove', onWindowMove))
 </script>
 
 <template>
   <div class="wrap select-none">
     <div
       class="scene mx-auto"
-      :class="dragging ? 'cursor-grabbing' : 'cursor-grab'"
-      aria-label="3D model of an IRONNODE server — drag to rotate"
       role="img"
-      @pointerdown="onDown"
-      @pointermove="onMove"
-      @pointerup="onUp"
-      @pointercancel="onUp"
+      aria-label="3D model of an IRONNODE server — hover to shatter it apart"
+      @pointerenter="onEnter"
+      @pointerleave="shattered = false"
     >
       <div class="bob">
         <div
           class="rack"
+          :class="{ shattered }"
           :style="{ transform: `rotateX(${pitch.toFixed(2)}deg) rotateY(${yaw.toFixed(2)}deg)` }"
         >
-          <!-- front -->
-          <div class="face front">
-            <div v-for="(unit, i) in units" :key="i" class="unit">
-              <template v-if="unit.kind === 'display'">
-                <span class="led on" />
-                <span class="unit-brand">IRONNODE</span>
-                <span class="unit-model">T2·4U</span>
-              </template>
-              <template v-else-if="unit.kind === 'drives'">
-                <span class="handle" /><span class="handle" />
-                <span class="led on" :style="{ animationDelay: `${i * 0.6}s` }" />
-                <span class="led dim" />
-                <div class="vents" />
-              </template>
-              <template v-else>
-                <span class="led dim" />
-                <div class="vents wide" />
-              </template>
+          <div v-for="(piece, i) in pieces" :key="i" class="piece" :style="piece.style">
+            <div class="pf">
+              <span
+                v-if="piece.col === 0"
+                class="led"
+                :class="piece.row % 2 === 0 ? 'on' : 'dim'"
+                :style="{ animationDelay: `${(i % 5) * 0.5}s` }"
+              />
+              <span v-if="piece.col === 1 && piece.row === 0" class="unit-brand">IRONNODE</span>
+              <div v-if="piece.col === 2" class="vents" />
             </div>
+            <div class="pb" />
+            <div v-if="piece.col === 0" class="ps psl" />
+            <div v-if="piece.col === COLS - 1" class="ps psr" />
+            <div v-if="piece.row === 0" class="pc pct" />
+            <div v-if="piece.row === ROWS - 1" class="pc pcb" />
           </div>
-          <!-- back: ports -->
-          <div class="face back">
-            <div v-for="i in 3" :key="i" class="port-row">
-              <span v-for="p in 4" :key="p" class="port" />
-            </div>
-          </div>
-          <!-- sides / top / bottom -->
-          <div class="face left" />
-          <div class="face right" />
-          <div class="face top" />
-          <div class="face bottom" />
         </div>
-        <div class="shadow" :class="{ still: dragging }" />
+        <div class="shadow" />
       </div>
     </div>
-    <p class="label-caps mt-6 text-center">Drag to rotate</p>
+    <p class="label-caps mt-6 text-center">Touch the node</p>
   </div>
 </template>
 
 <style scoped>
 .scene {
-  width: 400px;
+  width: 420px;
   max-width: 100%;
   height: 500px;
-  perspective: 1200px;
+  perspective: 1300px;
   display: flex;
   align-items: center;
   justify-content: center;
-  touch-action: none;
 }
 .bob {
   animation: bob 7s ease-in-out infinite;
 }
 .rack {
   position: relative;
-  width: 260px;
-  height: 400px;
+  width: 240px;
+  height: 378px;
   transform-style: preserve-3d;
+  transition: transform 0.4s ease-out;
 }
-.face {
+
+.piece {
   position: absolute;
-  background: oklch(0.23 0.045 258);
+  width: 80px;
+  height: 54px;
+  transform-style: preserve-3d;
+  transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.25, 1);
+  transition-delay: var(--d);
 }
-.front {
+.rack.shattered .piece {
+  transform: translate3d(var(--sx), var(--sy), var(--sz)) rotateX(var(--rx)) rotateY(var(--ry))
+    rotateZ(var(--rz));
+}
+
+/* faces of each shard */
+.pf,
+.pb {
+  position: absolute;
   inset: 0;
-  transform: translateZ(90px);
-  display: flex;
-  flex-direction: column;
-  background: linear-gradient(160deg, oklch(0.3 0.05 258), oklch(0.21 0.045 258));
-  border: 1px solid oklch(0.36 0.05 258);
 }
-.back {
-  inset: 0;
-  transform: rotateY(180deg) translateZ(90px);
-  background: oklch(0.2 0.045 258);
+.pf {
+  transform: translateZ(70px);
+  background: linear-gradient(160deg, oklch(0.29 0.05 258), oklch(0.22 0.045 258));
+  border-bottom: 1px solid oklch(0.965 0.007 85 / 0.16);
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 16px;
-  padding: 24px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
 }
-.left,
-.right {
+.pb {
+  transform: rotateY(180deg) translateZ(70px);
+  background: oklch(0.19 0.042 258);
+}
+.ps {
+  position: absolute;
   top: 0;
   bottom: 0;
-  width: 180px;
+  width: 140px;
   left: 50%;
-  margin-left: -90px;
-  background:
-    repeating-linear-gradient(90deg, transparent 0 20px, oklch(0.965 0.007 85 / 0.07) 20px 21px),
-    linear-gradient(180deg, oklch(0.25 0.045 258), oklch(0.2 0.045 258));
+  margin-left: -70px;
+  background: linear-gradient(180deg, oklch(0.25 0.045 258), oklch(0.21 0.045 258));
 }
-.left {
-  transform: rotateY(-90deg) translateZ(130px);
+.psl {
+  transform: rotateY(-90deg) translateZ(40px);
 }
-.right {
-  transform: rotateY(90deg) translateZ(130px);
-  filter: brightness(0.85);
+.psr {
+  transform: rotateY(90deg) translateZ(40px);
+  filter: brightness(0.82);
 }
-.top,
-.bottom {
+.pc {
+  position: absolute;
   left: 0;
   right: 0;
-  height: 180px;
+  height: 140px;
   top: 50%;
-  margin-top: -90px;
+  margin-top: -70px;
 }
-.top {
-  transform: rotateX(90deg) translateZ(200px);
-  background:
-    repeating-linear-gradient(0deg, transparent 0 14px, oklch(0.965 0.007 85 / 0.06) 14px 15px),
-    repeating-linear-gradient(90deg, transparent 0 14px, oklch(0.965 0.007 85 / 0.06) 14px 15px),
-    oklch(0.27 0.048 258);
+.pct {
+  transform: rotateX(90deg) translateZ(27px);
+  background: oklch(0.27 0.048 258);
 }
-.bottom {
-  transform: rotateX(-90deg) translateZ(200px);
+.pcb {
+  transform: rotateX(-90deg) translateZ(27px);
   background: oklch(0.17 0.04 258);
 }
 
-.unit {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 16px;
-  border-bottom: 1px solid oklch(0.965 0.007 85 / 0.16);
-}
-.unit:last-child {
-  border-bottom: none;
-}
 .led {
   width: 6px;
   height: 6px;
@@ -230,56 +206,34 @@ const units: Unit[] = [
 .led.dim {
   background: oklch(0.965 0.007 85 / 0.3);
 }
-.handle {
-  width: 4px;
-  height: 40%;
-  border: 1px solid oklch(0.965 0.007 85 / 0.35);
-  border-radius: 1px;
-}
 .unit-brand {
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.24em;
   color: oklch(0.965 0.007 85 / 0.9);
-}
-.unit-model {
-  margin-left: auto;
-  font-size: 8px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  color: oklch(0.965 0.007 85 / 0.45);
+  white-space: nowrap;
 }
 .vents {
   margin-left: auto;
-  width: 50%;
-  height: 44%;
+  width: 72%;
+  height: 40%;
   background: repeating-linear-gradient(
     90deg,
     oklch(0.965 0.007 85 / 0.2) 0 2px,
     transparent 2px 8px
   );
 }
-.vents.wide {
-  width: 68%;
-}
-
-.port-row {
-  display: flex;
-  gap: 12px;
-}
-.port {
-  width: 26px;
-  height: 12px;
-  border: 1px solid oklch(0.965 0.007 85 / 0.3);
-  background: oklch(0.965 0.007 85 / 0.06);
-}
 
 .shadow {
-  margin: 30px auto 0;
+  margin: 32px auto 0;
   width: 280px;
   height: 34px;
   border-radius: 50%;
   background: radial-gradient(ellipse, oklch(0.21 0.045 258 / 0.3), transparent 70%);
+  transition: opacity 0.6s;
+}
+.rack.shattered ~ .shadow {
+  opacity: 0.3;
 }
 
 @keyframes bob {
@@ -305,6 +259,10 @@ const units: Unit[] = [
   .bob,
   .led.on {
     animation: none;
+  }
+  .rack,
+  .piece {
+    transition: none;
   }
 }
 </style>

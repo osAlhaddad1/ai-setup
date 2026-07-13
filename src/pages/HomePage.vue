@@ -5,24 +5,42 @@ import { Button } from '@/components/ui/button'
 import NextStep from '@/components/NextStep.vue'
 import ServerRack3D from '@/components/ServerRack3D.vue'
 
-const stats = [
-  { value: '€0', label: 'recurring API fees' },
-  { value: '0', label: 'external calls' },
-  { value: '11 ms', label: 'first token' },
-  { value: '72 h', label: 'burn-in test' },
-]
-
-const principles = [
-  { n: '01', title: 'Data sovereignty', body: 'Your data never leaves your building.' },
-  { n: '02', title: 'Fixed cost', body: 'Own the hardware. No monthly fees.' },
-  { n: '03', title: 'Zero latency', body: 'No network round-trips.' },
-  { n: '04', title: 'Full control', body: 'Your models. Your weights.' },
+/* One narrative: each chapter pairs a claim with the number that proves it. */
+const story = [
+  {
+    n: '01',
+    title: 'Your data stays home',
+    body: 'Prompts, documents, and answers never leave your building.',
+    stat: '0',
+    unit: 'external calls',
+  },
+  {
+    n: '02',
+    title: 'The meter stops running',
+    body: 'One machine, bought once. The subscription era ends.',
+    stat: '€0',
+    unit: 'recurring API fees',
+  },
+  {
+    n: '03',
+    title: 'Answers arrive instantly',
+    body: 'No internet round-trip between a question and its answer.',
+    stat: '11 ms',
+    unit: 'to first token',
+  },
+  {
+    n: '04',
+    title: 'Proven before it ships',
+    body: 'Every node survives three days at full load before delivery.',
+    stat: '72 h',
+    unit: 'burn-in test',
+  },
 ]
 </script>
 
 <template>
   <!-- Hero -->
-  <section class="mx-auto grid max-w-6xl items-center gap-10 px-6 py-20 lg:grid-cols-2 lg:py-28">
+  <section class="mx-auto grid max-w-6xl items-center gap-10 px-6 py-20 lg:grid-cols-2 lg:py-24">
     <div v-reveal>
       <h1 class="text-5xl font-extrabold tracking-tight text-foreground md:text-7xl">
         Enterprise AI.<br />
@@ -50,35 +68,51 @@ const principles = [
     <ServerRack3D v-reveal="150" />
   </section>
 
-  <!-- Stat band -->
-  <section class="border-y">
-    <div class="mx-auto grid max-w-6xl grid-cols-2 divide-x md:grid-cols-4">
-      <div v-for="stat in stats" :key="stat.label" class="px-6 py-8">
-        <div class="text-3xl font-extrabold text-foreground md:text-4xl">{{ stat.value }}</div>
-        <div class="mt-1 text-sm text-muted-foreground">{{ stat.label }}</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Principles -->
-  <section class="mx-auto max-w-6xl px-6 py-24">
-    <div class="grid gap-x-10 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
-      <div v-for="(item, index) in principles" :key="item.n" v-reveal="index * 100">
-        <span class="label-caps">{{ item.n }}</span>
-        <h3 class="mt-3 text-lg font-bold text-foreground">{{ item.title }}</h3>
-        <p class="mt-2 text-sm text-muted-foreground">{{ item.body }}</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Statement -->
+  <!-- Story -->
   <section class="border-t">
     <div class="mx-auto max-w-6xl px-6 py-24">
+      <span v-reveal class="label-caps mb-16 block">What owning changes</span>
+      <div class="relative">
+        <div class="thread" aria-hidden="true" />
+        <ol class="space-y-20">
+          <li
+            v-for="(chapter, index) in story"
+            :key="chapter.n"
+            v-reveal="index * 100"
+            class="relative grid items-end gap-6 pl-10 sm:grid-cols-[1fr_auto] md:pl-14"
+          >
+            <span
+              class="absolute left-0 top-2 h-[9px] w-[9px] rounded-full bg-foreground"
+              aria-hidden="true"
+            />
+            <div>
+              <span class="label-caps">{{ chapter.n }}</span>
+              <h3 class="mt-2 text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
+                {{ chapter.title }}
+              </h3>
+              <p class="mt-2 max-w-md text-muted-foreground">{{ chapter.body }}</p>
+            </div>
+            <div class="sm:text-right">
+              <div class="text-5xl font-extrabold tracking-tight text-foreground md:text-6xl">
+                {{ chapter.stat }}
+              </div>
+              <div class="mt-1 text-sm text-muted-foreground">{{ chapter.unit }}</div>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- Statement → CTA -->
+  <section class="border-t">
+    <div class="mx-auto max-w-6xl px-6 pb-16 pt-24">
       <h2 v-reveal class="max-w-3xl text-4xl font-extrabold tracking-tight text-foreground md:text-6xl">
         Stop renting your intelligence.
       </h2>
       <p v-reveal="100" class="mt-6 max-w-xl text-lg text-muted-foreground">
-        On-premise deployment turns AI from a monthly bill into an asset you own.
+        On-premise deployment turns AI from a monthly bill into an asset you own. It starts with
+        the right machine.
       </p>
     </div>
   </section>
