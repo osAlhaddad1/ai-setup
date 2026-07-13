@@ -147,7 +147,7 @@ const barWidth = computed(() => {
       </div>
 
       <!-- Result -->
-      <div class="h-fit border bg-card p-10 lg:sticky lg:top-24" aria-live="polite">
+      <div class="panel-shadow h-fit border bg-card p-10 lg:sticky lg:top-24" aria-live="polite">
         <span class="label-caps">Pays for itself in</span>
         <div class="mt-2 flex items-baseline gap-3">
           <template v-if="result.breakEvenMonths !== null">

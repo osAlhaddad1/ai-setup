@@ -1,30 +1,30 @@
 @import 'tailwindcss';
 
 /*
-  IRONNODE theme — Swiss duotone.
-  Deep navy ground, warm off-white ink. No third color: hierarchy is
+  IRONNODE theme — Swiss duotone, light.
+  Warm off-white ground, deep navy ink. No third color: hierarchy is
   carried by size, weight, and opacity.
 */
 :root {
-  --background: oklch(0.19 0.042 258);
-  --foreground: oklch(0.95 0.012 85);
-  --card: oklch(0.215 0.042 258);
-  --card-foreground: oklch(0.95 0.012 85);
-  --popover: oklch(0.215 0.042 258);
-  --popover-foreground: oklch(0.95 0.012 85);
-  --primary: oklch(0.95 0.012 85);
-  --primary-foreground: oklch(0.19 0.042 258);
-  --secondary: oklch(0.26 0.04 258);
-  --secondary-foreground: oklch(0.95 0.012 85);
-  --muted: oklch(0.24 0.04 258);
-  --muted-foreground: oklch(0.68 0.025 258);
-  --accent: oklch(0.26 0.04 258);
-  --accent-foreground: oklch(0.95 0.012 85);
-  --destructive: oklch(0.6 0.2 25);
+  --background: oklch(0.965 0.007 85);
+  --foreground: oklch(0.21 0.045 258);
+  --card: oklch(0.99 0.004 85);
+  --card-foreground: oklch(0.21 0.045 258);
+  --popover: oklch(0.99 0.004 85);
+  --popover-foreground: oklch(0.21 0.045 258);
+  --primary: oklch(0.21 0.045 258);
+  --primary-foreground: oklch(0.965 0.007 85);
+  --secondary: oklch(0.92 0.01 85);
+  --secondary-foreground: oklch(0.21 0.045 258);
+  --muted: oklch(0.93 0.009 85);
+  --muted-foreground: oklch(0.45 0.025 258);
+  --accent: oklch(0.92 0.01 85);
+  --accent-foreground: oklch(0.21 0.045 258);
+  --destructive: oklch(0.55 0.2 25);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.95 0.012 85 / 0.14);
-  --input: oklch(0.95 0.012 85 / 0.2);
-  --ring: oklch(0.95 0.012 85);
+  --border: oklch(0.21 0.045 258 / 0.14);
+  --input: oklch(0.21 0.045 258 / 0.28);
+  --ring: oklch(0.21 0.045 258);
   --radius: 0.25rem;
 }
 
@@ -108,6 +108,13 @@
   text-transform: uppercase;
   letter-spacing: 0.18em;
   color: var(--color-muted-foreground);
+}
+
+/* Soft paper shadow for elevated panels */
+.panel-shadow {
+  box-shadow:
+    0 24px 60px -20px oklch(0.21 0.045 258 / 0.22),
+    0 4px 14px -6px oklch(0.21 0.045 258 / 0.1);
 }
 
 /* ---------- Scroll reveal ---------- */
