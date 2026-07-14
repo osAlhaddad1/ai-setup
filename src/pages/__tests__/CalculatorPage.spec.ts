@@ -11,34 +11,62 @@ const mountPage = () =>
   })
 
 describe('CalculatorPage', () => {
-  it('renders the three plain-language inputs and a recommendation', () => {
+  it('shows transparent pricing for all three tiers', () => {
     const wrapper = mountPage()
+    const text = wrapper.text()
 
-    expect(wrapper.text()).toContain('Monthly AI spend')
-    expect(wrapper.text()).toContain('People using AI')
-    expect(wrapper.text()).toContain('How heavily?')
-    expect(wrapper.text()).toContain('Recommended:')
+    expect(text).toContain('Workstation')
+    expect(text).toContain('Rack Unit')
+    expect(text).toContain('Enterprise Node')
+    expect(text).toContain('€19,000')
+    expect(text).toContain('€58,000')
+    expect(text).toContain('€340,000')
+    expect(text).toContain('Request a quote')
   })
 
-  it('recommends a bigger tier when usage switches to heavy', async () => {
+  it('renders the payback configurator inputs and a configuration summary', () => {
     const wrapper = mountPage()
 
-    // Defaults: 40 regular users -> load 40 -> Tier 1
+    expect(wrapper.text()).toContain('What will it run?')
+    expect(wrapper.text()).toContain('People using it')
+    expect(wrapper.text()).toContain('Current monthly AI spend')
+    expect(wrapper.text()).toContain('Your configuration')
+  })
+
+  it('recommends the rack unit as soon as fine-tuning is selected', async () => {
+    const wrapper = mountPage()
+
+    // Defaults: 40 assistant users -> Tier 1
     expect(wrapper.text()).toContain('Tier 1 — Workstation')
 
-    const heavy = wrapper
+    const train = wrapper
       .findAll('button[role="radio"]')
-      .find((button) => button.text().includes('Heavy'))
-    expect(heavy).toBeDefined()
-    await heavy!.trigger('click')
+      .find((button) => button.text().includes('Fine-tuning'))
+    expect(train).toBeDefined()
+    await train!.trigger('click')
 
-    // 40 heavy users -> load 88 -> Tier 2
     expect(wrapper.text()).toContain('Tier 2 — Rack Unit')
   })
 
-  it('shows a break-even estimate for the default inputs', () => {
+  it('shows payback and the three-year comparison for default inputs', () => {
     const wrapper = mountPage()
-    expect(wrapper.text()).toMatch(/\d+\.\d/)
-    expect(wrapper.text()).toContain('months')
+    const text = wrapper.text()
+
+    expect(text).toMatch(/\d+\.\d/)
+    expect(text).toContain('months')
+    expect(text).toContain('Keep renting')
+    expect(text).toContain('Own the node')
+    expect(text).toContain('/month')
+  })
+
+  it('prefills the quote request with the chosen configuration', () => {
+    const wrapper = mountPage()
+    const quoteLink = wrapper
+      .findAll('a')
+      .find((a) => a.attributes('href')?.startsWith('mailto:sales@') && a.text().includes('Tier 1'))
+    expect(quoteLink).toBeDefined()
+    const href = quoteLink!.attributes('href')!
+    expect(decodeURIComponent(href)).toContain('Team size: 40')
+    expect(decodeURIComponent(href)).toContain('Tier 1 Workstation')
   })
 })

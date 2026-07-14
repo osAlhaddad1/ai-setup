@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   AMORTIZATION_MONTHS,
   computeTco,
+  effectiveMonthly,
   formatEur,
   HOURS_PER_MONTH,
   recommendTier,
@@ -9,26 +10,27 @@ import {
 } from '../tco'
 
 describe('recommendTier', () => {
-  it('recommends the workstation for a small team', () => {
-    expect(recommendTier(10, 'regular').id).toBe(1)
+  it('recommends the workstation for small assistant workloads', () => {
+    expect(recommendTier(10, 'assist').id).toBe(1)
   })
 
   it('recommends the rack unit once load crosses 50 concurrent-user equivalents', () => {
-    expect(recommendTier(50, 'regular').id).toBe(2)
-    expect(recommendTier(25, 'heavy').id).toBe(2) // 25 x 2.2 = 55
+    expect(recommendTier(50, 'assist').id).toBe(2)
+    expect(recommendTier(40, 'rag').id).toBe(2) // 40 x 1.6 = 64
   })
 
-  it('keeps light users on the workstation longer', () => {
-    expect(recommendTier(100, 'light').id).toBe(1) // 100 x 0.4 = 40
+  it('never recommends below the rack unit for fine-tuning', () => {
+    expect(recommendTier(1, 'train').id).toBe(2)
   })
 
-  it('recommends the enterprise node for heavy large teams', () => {
-    expect(recommendTier(200, 'heavy').id).toBe(3) // 200 x 2.2 = 440
+  it('recommends the enterprise node for large heavy workloads', () => {
+    expect(recommendTier(150, 'train').id).toBe(3) // 150 x 2.5 = 375
+    expect(recommendTier(200, 'rag').id).toBe(3) // 200 x 1.6 = 320
   })
 
   it('never returns a tier below 1 for zero or negative team sizes', () => {
-    expect(recommendTier(0, 'heavy').id).toBe(1)
-    expect(recommendTier(-5, 'heavy').id).toBe(1)
+    expect(recommendTier(0, 'assist').id).toBe(1)
+    expect(recommendTier(-5, 'rag').id).toBe(1)
   })
 })
 
@@ -51,6 +53,15 @@ describe('computeTco', () => {
     expect(result.breakEvenMonths).toBeCloseTo(8.805, 2)
     // 36-month savings: 7,200x36 - (58,000 + 613.20x36) = €179,124.80
     expect(result.savings36).toBeCloseTo(179124.8, 1)
+  })
+
+  it('reports the three-year totals used by the comparison bars', () => {
+    const result = computeTco({ monthlyCloudSpend: 7200, tier: tier2, powerCostPerKwh: 0.3 })
+    expect(result.cloudTotal36).toBeCloseTo(7200 * 36, 5)
+    expect(result.ownedTotal36).toBeCloseTo(58000 + 613.2 * 36, 2)
+    expect(result.savings36).toBeCloseTo(result.cloudTotal36 - result.ownedTotal36, 5)
+    // After payback, only electricity remains
+    expect(result.monthlyAfterPayback).toBeCloseTo(result.monthlyPower, 5)
   })
 
   it('returns null break-even when cloud spend never covers running power costs', () => {
@@ -83,6 +94,13 @@ describe('computeTco', () => {
   it('uses the documented constants', () => {
     expect(AMORTIZATION_MONTHS).toBe(36)
     expect(HOURS_PER_MONTH).toBe(730)
+  })
+})
+
+describe('effectiveMonthly', () => {
+  it('spreads CapEx over 36 months and adds default power cost', () => {
+    // Tier 1: 19,000/36 + 1.2 x 730 x 0.30 = 527.78 + 262.80
+    expect(effectiveMonthly(TIERS[0])).toBeCloseTo(19000 / 36 + 262.8, 2)
   })
 })
 

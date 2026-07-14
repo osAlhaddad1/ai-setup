@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 
 const links = [
   { n: '01', to: '/fleet', label: 'Hardware' },
-  { n: '02', to: '/calculator', label: 'Savings' },
+  { n: '02', to: '/calculator', label: 'Pricing' },
   { n: '03', to: '/deployment', label: 'Process' },
   { n: '04', to: '/faq', label: 'FAQ' },
 ]
@@ -36,7 +36,7 @@ const mobileOpen = ref(false)
           <span class="mr-1.5 text-xs opacity-60">{{ link.n }}</span>{{ link.label }}
         </RouterLink>
         <Button as-child>
-          <a href="mailto:audit@ironnode.example?subject=Site%20Audit%20Request">Book a site audit</a>
+          <a href="mailto:sales@ironnode.example?subject=Talk%20to%20an%20engineer">Talk to an engineer</a>
         </Button>
       </nav>
 
@@ -65,7 +65,7 @@ const mobileOpen = ref(false)
         <span class="mr-2 text-sm opacity-60">{{ link.n }}</span>{{ link.label }}
       </RouterLink>
       <Button as-child class="mt-4 w-full">
-        <a href="mailto:audit@ironnode.example?subject=Site%20Audit%20Request">Book a site audit</a>
+        <a href="mailto:sales@ironnode.example?subject=Talk%20to%20an%20engineer">Talk to an engineer</a>
       </Button>
     </nav>
   </header>

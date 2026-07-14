@@ -1,8 +1,8 @@
 /**
- * Total Cost of Ownership model.
+ * Pricing and payback model.
  *
- * Business-owner-friendly inputs (monthly AI bill, team size, usage level)
- * are mapped onto the underlying engineering formulas:
+ * Sales logic: transparent one-time tier prices, a workload-based
+ * recommendation, and payback math built on the documented formulas:
  *
  *   Monthly Local Cost = (Hardware CapEx / 36) + (PowerDraw_kW x 730 x C_kwh)
  *   Break-Even Months  = CapEx / (Monthly Cloud Cost - monthly power cost)
@@ -12,7 +12,7 @@ export const AMORTIZATION_MONTHS = 36
 export const HOURS_PER_MONTH = 730
 export const DEFAULT_POWER_COST_PER_KWH = 0.3
 
-export type UsageLevel = 'light' | 'regular' | 'heavy'
+export type Workload = 'assist' | 'rag' | 'train'
 
 export interface Tier {
   id: 1 | 2 | 3
@@ -30,7 +30,7 @@ export const TIERS: Tier[] = [
     label: 'Workstation',
     powerKw: 1.2,
     capex: 19_000,
-    useCase: 'Inference (<50 concurrent users)',
+    useCase: 'Inference for teams under 50',
   },
   {
     id: 2,
@@ -38,7 +38,7 @@ export const TIERS: Tier[] = [
     label: 'Rack Unit',
     powerKw: 2.8,
     capex: 58_000,
-    useCase: 'Heavy Inference & Fine-tuning',
+    useCase: 'Heavy inference & fine-tuning',
   },
   {
     id: 3,
@@ -46,23 +46,26 @@ export const TIERS: Tier[] = [
     label: 'Enterprise Node',
     powerKw: 10.2,
     capex: 340_000,
-    useCase: 'Continuous Pre-training & High Load',
+    useCase: 'Continuous training & high load',
   },
 ]
 
-/** How much load one person at each usage level puts on the node, in
- *  "concurrent-user equivalents". */
-const USAGE_WEIGHT: Record<UsageLevel, number> = {
-  light: 0.4,
-  regular: 1,
-  heavy: 2.2,
+/** Load multiplier per workload, in concurrent-user equivalents per person. */
+const WORKLOAD_WEIGHT: Record<Workload, number> = {
+  assist: 1,
+  rag: 1.6,
+  train: 2.5,
 }
 
-/** Pick the smallest tier that comfortably serves the team. */
-export function recommendTier(teamSize: number, usage: UsageLevel): Tier {
-  const load = Math.max(0, teamSize) * USAGE_WEIGHT[usage]
-  if (load < 50) return TIERS[0]
-  if (load < 300) return TIERS[1]
+/**
+ * Pick the smallest tier that serves the workload.
+ * Fine-tuning needs the Rack Unit's VRAM regardless of team size.
+ */
+export function recommendTier(teamSize: number, workload: Workload): Tier {
+  const load = Math.max(0, teamSize) * WORKLOAD_WEIGHT[workload]
+  const minIndex = workload === 'train' ? 1 : 0
+  if (load < 50) return TIERS[Math.max(0, minIndex)]
+  if (load < 300) return TIERS[Math.max(1, minIndex)]
   return TIERS[2]
 }
 
@@ -84,6 +87,12 @@ export interface TcoResult {
   breakEvenMonths: number | null
   /** Net savings across the 36-month amortization window. */
   savings36: number
+  /** Total spent on cloud over 36 months at today's bill. */
+  cloudTotal36: number
+  /** Total cost of owning over 36 months: hardware + power. */
+  ownedTotal36: number
+  /** What inference costs once the hardware has paid for itself. */
+  monthlyAfterPayback: number
   capex: number
 }
 
@@ -99,8 +108,8 @@ export function computeTco(input: TcoInput): TcoResult {
   const netMonthlySavings = monthlyCloud - monthlyPower
   const breakEvenMonths = netMonthlySavings > 0 ? capex / netMonthlySavings : null
 
-  const savings36 =
-    monthlyCloud * AMORTIZATION_MONTHS - (capex + monthlyPower * AMORTIZATION_MONTHS)
+  const cloudTotal36 = monthlyCloud * AMORTIZATION_MONTHS
+  const ownedTotal36 = capex + monthlyPower * AMORTIZATION_MONTHS
 
   return {
     monthlyCloud,
@@ -108,9 +117,17 @@ export function computeTco(input: TcoInput): TcoResult {
     monthlyAmortization,
     monthlyLocal,
     breakEvenMonths,
-    savings36,
+    savings36: cloudTotal36 - ownedTotal36,
+    cloudTotal36,
+    ownedTotal36,
+    monthlyAfterPayback: monthlyPower,
     capex,
   }
+}
+
+/** Effective monthly cost of a tier over 36 months at default power price. */
+export function effectiveMonthly(tier: Tier): number {
+  return tier.capex / AMORTIZATION_MONTHS + tier.powerKw * HOURS_PER_MONTH * DEFAULT_POWER_COST_PER_KWH
 }
 
 export function formatEur(value: number): string {

@@ -7,9 +7,18 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
 import NextStep from '@/components/NextStep.vue'
 import SectionHeading from '@/components/SectionHeading.vue'
-import { formatEur, TIERS } from '@/lib/tco'
+import { formatEur, TIERS, type Tier } from '@/lib/tco'
+
+function tierQuoteHref(tier: Tier): string {
+  const subject = encodeURIComponent(`Quote request — ${tier.name} ${tier.label}`)
+  const body = encodeURIComponent(
+    `Requested configuration:\n- ${tier.name} ${tier.label} (${formatEur(tier.capex)})\n\nCompany:\nDeployment timeline:`,
+  )
+  return `mailto:sales@ironnode.example?subject=${subject}&body=${body}`
+}
 
 const specs = [
   { label: 'Target use case', values: ['Inference (<50 concurrent users)', 'Heavy inference & fine-tuning', 'Continuous pre-training & high load'] },
@@ -39,7 +48,12 @@ const highlights = [
     />
 
     <div class="grid divide-y border md:grid-cols-3 md:divide-x md:divide-y-0">
-      <div v-for="(tier, index) in TIERS" :key="tier.id" v-reveal="index * 100" class="p-8">
+      <div
+        v-for="(tier, index) in TIERS"
+        :key="tier.id"
+        v-reveal="index * 100"
+        class="flex flex-col p-8"
+      >
         <span class="label-caps">Tier {{ tier.id }}</span>
         <h3 class="mt-3 text-2xl font-bold text-foreground">{{ tier.label }}</h3>
         <p class="mt-1 text-sm text-muted-foreground">{{ tier.useCase }}</p>
@@ -49,6 +63,9 @@ const highlights = [
         <div class="mt-6 text-sm text-muted-foreground">
           from <span class="font-semibold text-foreground">{{ formatEur(tier.capex) }}</span>
         </div>
+        <Button class="mt-6" :variant="tier.id === 2 ? 'default' : 'outline'" as-child>
+          <a :href="tierQuoteHref(tier)">Request a quote</a>
+        </Button>
       </div>
     </div>
 
@@ -76,5 +93,5 @@ const highlights = [
     </div>
   </section>
 
-  <NextStep to="/calculator" index="02" title="Calculate your savings" />
+  <NextStep to="/calculator" index="02" title="Pricing & payback" />
 </template>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { RouterLink } from 'vue-router'
 import { ArrowRight } from 'lucide-vue-next'
 import {
   Accordion,
@@ -15,28 +14,46 @@ import { Slider } from '@/components/ui/slider'
 import NextStep from '@/components/NextStep.vue'
 import SectionHeading from '@/components/SectionHeading.vue'
 import {
-  AMORTIZATION_MONTHS,
   computeTco,
   DEFAULT_POWER_COST_PER_KWH,
+  effectiveMonthly,
   formatEur,
   recommendTier,
-  type UsageLevel,
+  TIERS,
+  type Tier,
+  type Workload,
 } from '@/lib/tco'
 
-const monthlySpend = ref([2500])
+/* ---------- Transparent tier pricing ---------- */
+const tierSpecs: Record<number, string[]> = {
+  1: ['2× NVIDIA RTX 4090', '48 GB VRAM', '128 GB DDR5', 'Full-tower desktop'],
+  2: ['4× NVIDIA L40S', '192 GB VRAM', '512 GB DDR5 ECC', '4U server rack'],
+  3: ['8× NVIDIA H200', '1,120 GB VRAM', '2,048 GB DDR5 ECC', '8U server rack'],
+}
+
+function tierQuoteHref(tier: Tier): string {
+  const subject = encodeURIComponent(`Quote request — ${tier.name} ${tier.label}`)
+  const body = encodeURIComponent(
+    `Requested configuration:\n- ${tier.name} ${tier.label} (${formatEur(tier.capex)})\n\nCompany:\nDeployment timeline:`,
+  )
+  return `mailto:sales@ironnode.example?subject=${subject}&body=${body}`
+}
+
+/* ---------- Payback configurator ---------- */
+const workload = ref<Workload>('assist')
 const teamSize = ref([40])
-const usage = ref<UsageLevel>('regular')
+const monthlySpend = ref([2500])
 
 const powerCost = ref(DEFAULT_POWER_COST_PER_KWH)
 const capexOverride = ref<number | ''>('')
 
-const usageOptions: { value: UsageLevel; title: string; desc: string }[] = [
-  { value: 'light', title: 'Light', desc: 'Occasional emails & questions' },
-  { value: 'regular', title: 'Regular', desc: 'Daily writing & support' },
-  { value: 'heavy', title: 'Heavy', desc: 'Documents, code, automation' },
+const workloadOptions: { value: Workload; title: string; desc: string }[] = [
+  { value: 'assist', title: 'Chat & assistants', desc: 'Writing, support, internal tools' },
+  { value: 'rag', title: 'RAG & search', desc: 'Your documents, answered' },
+  { value: 'train', title: 'Fine-tuning', desc: 'Your own model variants' },
 ]
 
-const tier = computed(() => recommendTier(teamSize.value[0], usage.value))
+const tier = computed(() => recommendTier(teamSize.value[0], workload.value))
 
 const result = computed(() =>
   computeTco({
@@ -47,165 +64,213 @@ const result = computed(() =>
   }),
 )
 
-const barWidth = computed(() => {
+const barMax = computed(() => Math.max(result.value.cloudTotal36, result.value.ownedTotal36, 1))
+const cloudBarPct = computed(() => (result.value.cloudTotal36 / barMax.value) * 100)
+const ownedBarPct = computed(() => (result.value.ownedTotal36 / barMax.value) * 100)
+
+const configQuoteHref = computed(() => {
+  const t = tier.value
+  const w = workloadOptions.find((o) => o.value === workload.value)?.title
   const be = result.value.breakEvenMonths
-  if (be === null) return 0
-  return Math.max(0, Math.min(100, (1 - be / AMORTIZATION_MONTHS) * 100))
+  const subject = encodeURIComponent(`Quote request — ${t.name} ${t.label}`)
+  const body = encodeURIComponent(
+    [
+      'Requested configuration:',
+      `- ${t.name} ${t.label} (${formatEur(result.value.capex)})`,
+      `- Workload: ${w}`,
+      `- Team size: ${teamSize.value[0]}`,
+      `- Current monthly AI spend: ${formatEur(monthlySpend.value[0])}`,
+      be !== null ? `- Estimated payback: ${be.toFixed(1)} months` : '',
+      '',
+      'Company:',
+      'Deployment timeline:',
+    ].join('\n'),
+  )
+  return `mailto:sales@ironnode.example?subject=${subject}&body=${body}`
 })
 </script>
 
 <template>
+  <!-- Transparent pricing -->
   <section class="mx-auto max-w-6xl px-6 py-20">
     <SectionHeading
-      label="02 — Savings"
-      title="What would owning save you?"
-      lede="Three questions. No spreadsheet."
+      label="02 — Pricing"
+      title="One machine. One invoice."
+      lede="Every node ships assembled, burned in, and ready to rack. No metering, no per-seat licenses."
     />
 
-    <div class="grid gap-16 lg:grid-cols-2">
-      <!-- Inputs -->
-      <div class="space-y-12">
-        <div>
-          <div class="flex items-baseline justify-between gap-4">
-            <Label class="text-base font-semibold text-foreground">Monthly AI spend</Label>
-            <span class="text-4xl font-extrabold text-foreground">{{ formatEur(monthlySpend[0]) }}</span>
-          </div>
-          <p class="mt-1 text-sm text-muted-foreground">
-            Everything you pay OpenAI, Anthropic, Copilot &amp; co. per month.
-          </p>
-          <Slider v-model="monthlySpend" :min="100" :max="30000" :step="100" class="mt-6" />
-          <div class="mt-2 flex justify-between text-xs text-muted-foreground">
-            <span>€100</span><span>€30,000</span>
-          </div>
+    <div class="grid divide-y border md:grid-cols-3 md:divide-x md:divide-y-0">
+      <div v-for="(t, index) in TIERS" :key="t.id" v-reveal="index * 100" class="flex flex-col p-8">
+        <span class="label-caps">{{ t.name }}</span>
+        <h3 class="mt-2 text-2xl font-bold text-foreground">{{ t.label }}</h3>
+        <div class="mt-6 text-4xl font-extrabold tracking-tight text-foreground">
+          {{ formatEur(t.capex) }}
         </div>
-
-        <div>
-          <div class="flex items-baseline justify-between gap-4">
-            <Label class="text-base font-semibold text-foreground">People using AI</Label>
-            <span class="text-4xl font-extrabold text-foreground">{{ teamSize[0] }}</span>
-          </div>
-          <Slider v-model="teamSize" :min="1" :max="500" :step="1" class="mt-6" />
-          <div class="mt-2 flex justify-between text-xs text-muted-foreground">
-            <span>1</span><span>500</span>
-          </div>
+        <div class="mt-1 text-sm text-muted-foreground">
+          ≈ {{ formatEur(effectiveMonthly(t)) }}/mo over 36 months, power included
         </div>
-
-        <div>
-          <Label class="text-base font-semibold text-foreground">How heavily?</Label>
-          <div class="mt-4 grid grid-cols-3 divide-x border" role="radiogroup" aria-label="Usage level">
-            <button
-              v-for="option in usageOptions"
-              :key="option.value"
-              type="button"
-              role="radio"
-              :aria-checked="usage === option.value"
-              class="p-4 text-left transition-colors"
-              :class="
-                usage === option.value
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-foreground hover:bg-card'
-              "
-              @click="usage = option.value"
-            >
-              <div class="font-bold">{{ option.title }}</div>
-              <div
-                class="mt-1 text-xs"
-                :class="usage === option.value ? 'text-primary-foreground/70' : 'text-muted-foreground'"
-              >
-                {{ option.desc }}
-              </div>
-            </button>
-          </div>
-        </div>
-
-        <Accordion type="single" collapsible>
-          <AccordionItem value="advanced" class="border-b-0 border-t">
-            <AccordionTrigger class="text-sm text-muted-foreground">
-              Advanced — for your IT team
-            </AccordionTrigger>
-            <AccordionContent>
-              <div class="grid gap-5 pt-2 sm:grid-cols-2">
-                <div class="space-y-2">
-                  <Label for="power-cost">Electricity (€ / kWh)</Label>
-                  <Input id="power-cost" v-model="powerCost" type="number" step="0.01" min="0" />
-                </div>
-                <div class="space-y-2">
-                  <Label for="capex">Hardware budget (€)</Label>
-                  <Input
-                    id="capex"
-                    v-model="capexOverride"
-                    type="number"
-                    step="1000"
-                    min="0"
-                    :placeholder="String(tier.capex)"
-                  />
-                </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </div>
-
-      <!-- Result -->
-      <div class="panel-shadow h-fit border bg-card p-10 lg:sticky lg:top-24" aria-live="polite">
-        <span class="label-caps">Pays for itself in</span>
-        <div class="mt-2 flex items-baseline gap-3">
-          <template v-if="result.breakEvenMonths !== null">
-            <span class="text-7xl font-extrabold tracking-tight text-foreground md:text-8xl">
-              {{ result.breakEvenMonths.toFixed(1) }}
-            </span>
-            <span class="text-2xl font-semibold text-muted-foreground">months</span>
-          </template>
-          <span v-else class="text-7xl font-extrabold text-muted-foreground">—</span>
-        </div>
-        <div class="mt-4 h-1 bg-secondary">
-          <div class="h-full bg-foreground transition-all duration-500" :style="{ width: barWidth + '%' }" />
-        </div>
-        <p class="mt-3 text-sm text-muted-foreground">
-          <template v-if="result.breakEvenMonths === null">
-            At this spend, cloud is still cheaper. Talk to us when your bill grows.
-          </template>
-          <template v-else-if="result.savings36 > 0">
-            <span class="font-semibold text-foreground">{{ formatEur(result.savings36) }}</span>
-            kept in your business over 3 years.
-          </template>
-          <template v-else>Breaks even after the 3-year window.</template>
-        </p>
-
-        <div class="mt-10 grid grid-cols-2 gap-8 border-t pt-8">
-          <div>
-            <span class="label-caps">You pay today</span>
-            <div class="mt-1 text-3xl font-extrabold text-foreground">
-              {{ formatEur(result.monthlyCloud) }}
-            </div>
-            <div class="text-sm text-muted-foreground">per month, forever</div>
-          </div>
-          <div>
-            <span class="label-caps">Owning costs</span>
-            <div class="mt-1 text-3xl font-extrabold text-foreground">
-              {{ formatEur(result.monthlyLocal) }}
-            </div>
-            <div class="text-sm text-muted-foreground">per month, 3-year basis</div>
-          </div>
-        </div>
-
-        <RouterLink
-          :to="'/fleet'"
-          class="group mt-8 flex items-center justify-between border-t pt-6 text-sm"
-        >
-          <span class="text-muted-foreground">
-            Recommended:
-            <span class="font-semibold text-foreground">Tier {{ tier.id }} — {{ tier.label }}</span>
-          </span>
-          <ArrowRight class="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
-        </RouterLink>
-
-        <Button size="lg" class="mt-8 w-full" as-child>
-          <a href="mailto:audit@ironnode.example?subject=Site%20Audit%20Request">Book a site audit</a>
+        <ul class="mt-6 space-y-2 border-t pt-6 text-sm text-foreground">
+          <li v-for="line in tierSpecs[t.id]" :key="line">{{ line }}</li>
+        </ul>
+        <div class="mt-4 text-sm text-muted-foreground">{{ t.useCase }}</div>
+        <Button class="mt-8" :variant="t.id === 2 ? 'default' : 'outline'" as-child>
+          <a :href="tierQuoteHref(t)">Request a quote</a>
         </Button>
-        <p class="mt-4 text-xs text-muted-foreground">
-          Estimate: 36-month amortization, {{ tier.powerKw }} kW draw, your electricity price.
-        </p>
+      </div>
+    </div>
+    <p class="mt-4 text-xs text-muted-foreground">
+      Prices exclude VAT, shipping, and on-site installation.
+    </p>
+  </section>
+
+  <!-- Payback configurator -->
+  <section class="border-t">
+    <div class="mx-auto max-w-6xl px-6 py-20">
+      <SectionHeading label="Payback" title="When does it pay for itself?" />
+
+      <div class="grid gap-16 lg:grid-cols-2">
+        <!-- Inputs -->
+        <div class="space-y-12">
+          <div>
+            <Label class="text-base font-semibold text-foreground">What will it run?</Label>
+            <div class="mt-4 grid grid-cols-3 divide-x border" role="radiogroup" aria-label="Workload">
+              <button
+                v-for="option in workloadOptions"
+                :key="option.value"
+                type="button"
+                role="radio"
+                :aria-checked="workload === option.value"
+                class="p-4 text-left transition-colors"
+                :class="
+                  workload === option.value
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-foreground hover:bg-card'
+                "
+                @click="workload = option.value"
+              >
+                <div class="text-sm font-bold">{{ option.title }}</div>
+                <div
+                  class="mt-1 text-xs"
+                  :class="workload === option.value ? 'text-primary-foreground/70' : 'text-muted-foreground'"
+                >
+                  {{ option.desc }}
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-baseline justify-between gap-4">
+              <Label class="text-base font-semibold text-foreground">People using it</Label>
+              <span class="text-4xl font-extrabold text-foreground">{{ teamSize[0] }}</span>
+            </div>
+            <Slider v-model="teamSize" :min="1" :max="500" :step="1" class="mt-6" />
+            <div class="mt-2 flex justify-between text-xs text-muted-foreground">
+              <span>1</span><span>500</span>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-baseline justify-between gap-4">
+              <Label class="text-base font-semibold text-foreground">Current monthly AI spend</Label>
+              <span class="text-4xl font-extrabold text-foreground">{{ formatEur(monthlySpend[0]) }}</span>
+            </div>
+            <p class="mt-1 text-sm text-muted-foreground">Your cloud AI invoices, added up.</p>
+            <Slider v-model="monthlySpend" :min="100" :max="30000" :step="100" class="mt-6" />
+            <div class="mt-2 flex justify-between text-xs text-muted-foreground">
+              <span>€100</span><span>€30,000</span>
+            </div>
+          </div>
+
+          <Accordion type="single" collapsible>
+            <AccordionItem value="advanced" class="border-b-0 border-t">
+              <AccordionTrigger class="text-sm text-muted-foreground">
+                Advanced — for your IT team
+              </AccordionTrigger>
+              <AccordionContent>
+                <div class="grid gap-5 pt-2 sm:grid-cols-2">
+                  <div class="space-y-2">
+                    <Label for="power-cost">Electricity (€ / kWh)</Label>
+                    <Input id="power-cost" v-model="powerCost" type="number" step="0.01" min="0" />
+                  </div>
+                  <div class="space-y-2">
+                    <Label for="capex">Hardware budget (€)</Label>
+                    <Input
+                      id="capex"
+                      v-model="capexOverride"
+                      type="number"
+                      step="1000"
+                      min="0"
+                      :placeholder="String(tier.capex)"
+                    />
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+
+        <!-- Result -->
+        <div class="panel-shadow h-fit border bg-card p-10 lg:sticky lg:top-24" aria-live="polite">
+          <div class="flex items-baseline justify-between gap-4">
+            <span class="label-caps">Your configuration</span>
+            <span class="text-sm font-semibold text-foreground">
+              {{ tier.name }} — {{ tier.label }} · {{ formatEur(result.capex) }}
+            </span>
+          </div>
+
+          <div class="mt-8">
+            <span class="label-caps">Pays for itself in</span>
+            <div class="mt-2 flex items-baseline gap-3">
+              <template v-if="result.breakEvenMonths !== null">
+                <span class="text-7xl font-extrabold tracking-tight text-foreground md:text-8xl">
+                  {{ result.breakEvenMonths.toFixed(1) }}
+                </span>
+                <span class="text-2xl font-semibold text-muted-foreground">months</span>
+              </template>
+              <span v-else class="text-7xl font-extrabold text-muted-foreground">—</span>
+            </div>
+            <p v-if="result.breakEvenMonths === null" class="mt-2 text-sm text-muted-foreground">
+              At this spend, cloud is still cheaper. Talk to us when your bill grows.
+            </p>
+          </div>
+
+          <div class="mt-10 space-y-5 border-t pt-8">
+            <span class="label-caps">Three years, side by side</span>
+            <div>
+              <div class="flex justify-between text-sm">
+                <span class="text-muted-foreground">Keep renting</span>
+                <span class="font-semibold text-foreground">{{ formatEur(result.cloudTotal36) }}</span>
+              </div>
+              <div class="mt-1.5 h-3 bg-secondary">
+                <div class="h-full bg-foreground/30 transition-all duration-500" :style="{ width: cloudBarPct + '%' }" />
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm">
+                <span class="text-muted-foreground">Own the node</span>
+                <span class="font-semibold text-foreground">{{ formatEur(result.ownedTotal36) }}</span>
+              </div>
+              <div class="mt-1.5 h-3 bg-secondary">
+                <div class="h-full bg-foreground transition-all duration-500" :style="{ width: ownedBarPct + '%' }" />
+              </div>
+            </div>
+            <p class="text-sm text-muted-foreground">
+              After payback, inference runs on electricity alone —
+              <span class="font-semibold text-foreground">{{ formatEur(result.monthlyAfterPayback) }}/month</span>.
+            </p>
+          </div>
+
+          <Button size="lg" class="mt-10 w-full" as-child>
+            <a :href="configQuoteHref">
+              Request a quote for {{ tier.name }}
+              <ArrowRight />
+            </a>
+          </Button>
+          <p class="mt-4 text-xs text-muted-foreground">
+            Estimate: 36-month amortization, {{ tier.powerKw }} kW draw, your electricity price.
+          </p>
+        </div>
       </div>
     </div>
   </section>

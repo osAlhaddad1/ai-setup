@@ -48,7 +48,7 @@ const faqs = [
         A site audit sizes the exact node your workload needs.
       </p>
       <Button v-reveal="200" size="lg" class="mt-10" as-child>
-        <a href="mailto:audit@ironnode.example?subject=Site%20Audit%20Request">Book a site audit</a>
+        <a href="mailto:sales@ironnode.example?subject=Talk%20to%20an%20engineer">Talk to an engineer</a>
       </Button>
     </div>
   </section>
