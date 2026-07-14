@@ -3,8 +3,11 @@ import { RouterLink } from 'vue-router'
 import { ArrowRight } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import NextStep from '@/components/NextStep.vue'
+import NodeThumb from '@/components/NodeThumb.vue'
 import ServerRack3D from '@/components/ServerRack3D.vue'
 import { effectiveMonthly, formatEur, TIERS } from '@/lib/tco'
+
+const thumbUnits: Record<number, number> = { 1: 3, 2: 4, 3: 8 }
 
 const models = ['Llama', 'DeepSeek', 'Mistral', 'Qwen', 'Gemma']
 
@@ -53,25 +56,23 @@ const assurances = [
     <div v-reveal>
       <h1 class="text-5xl font-extrabold tracking-tight text-foreground md:text-7xl">
         Enterprise AI.<br />
-        Entirely<br />
-        on-premise.
+        <span class="text-muted-foreground/70">Entirely on-premise.</span>
       </h1>
       <p class="mt-8 max-w-md text-lg text-muted-foreground">
         Large language models on hardware you own. No token fees, no data exposure, no cloud.
       </p>
-      <div class="mt-10 flex flex-wrap items-center gap-6">
+      <div class="mt-10 flex flex-wrap items-center gap-4">
         <Button size="lg" as-child>
           <RouterLink to="/calculator">
             See pricing
             <ArrowRight />
           </RouterLink>
         </Button>
-        <a
-          href="mailto:sales@ironnode.example?subject=Question%20for%20an%20engineer"
-          class="text-sm font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
-        >
-          Talk to an engineer
-        </a>
+        <Button size="lg" variant="outline" as-child>
+          <a href="mailto:sales@ironnode.example?subject=Question%20for%20an%20engineer">
+            Talk to an engineer
+          </a>
+        </Button>
       </div>
     </div>
     <ServerRack3D v-reveal="150" />
@@ -94,35 +95,25 @@ const assurances = [
   <!-- Story -->
   <section>
     <div class="mx-auto max-w-6xl px-6 py-24">
-      <span v-reveal class="label-caps mb-16 block">What owning changes</span>
+      <span v-reveal class="label-caps mb-12 block">What owning changes</span>
       <div class="relative">
-        <div class="thread" aria-hidden="true" />
-        <ol class="space-y-20">
-          <li
+        <div class="thread-x" aria-hidden="true" />
+        <div class="grid divide-y lg:grid-cols-4 lg:divide-x lg:divide-y-0">
+          <div
             v-for="(chapter, index) in story"
             :key="chapter.n"
             v-reveal="index * 100"
-            class="relative grid items-end gap-6 pl-10 sm:grid-cols-[1fr_auto] md:pl-14"
+            class="px-0 py-10 lg:px-8 lg:first:pl-0 lg:last:pr-0"
           >
-            <span
-              class="absolute left-0 top-2 h-[9px] w-[9px] rounded-full bg-foreground"
-              aria-hidden="true"
-            />
-            <div>
-              <span class="label-caps">{{ chapter.n }}</span>
-              <h3 class="mt-2 text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
-                {{ chapter.title }}
-              </h3>
-              <p class="mt-2 max-w-md text-muted-foreground">{{ chapter.body }}</p>
+            <span class="label-caps">{{ chapter.n }}</span>
+            <div class="mt-6 text-5xl font-extrabold tracking-tight text-foreground">
+              {{ chapter.stat }}
             </div>
-            <div class="sm:text-right">
-              <div class="text-5xl font-extrabold tracking-tight text-foreground md:text-6xl">
-                {{ chapter.stat }}
-              </div>
-              <div class="mt-1 text-sm text-muted-foreground">{{ chapter.unit }}</div>
-            </div>
-          </li>
-        </ol>
+            <div class="mt-1 text-sm text-muted-foreground">{{ chapter.unit }}</div>
+            <h3 class="mt-6 font-bold text-foreground">{{ chapter.title }}</h3>
+            <p class="mt-1 text-sm text-muted-foreground">{{ chapter.body }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -139,7 +130,10 @@ const assurances = [
           to="/fleet"
           class="group p-8 transition-colors hover:bg-card"
         >
-          <span class="label-caps">{{ tier.name }}</span>
+          <div class="flex items-start justify-between gap-4">
+            <span class="label-caps">{{ tier.name }}</span>
+            <NodeThumb :units="thumbUnits[tier.id]" />
+          </div>
           <h3 class="mt-2 text-2xl font-bold text-foreground">{{ tier.label }}</h3>
           <p class="mt-1 text-sm text-muted-foreground">{{ tier.useCase }}</p>
           <div class="mt-6 flex items-center justify-between">

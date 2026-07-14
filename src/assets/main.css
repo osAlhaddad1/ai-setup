@@ -117,34 +117,34 @@
     0 4px 14px -6px oklch(0.21 0.045 258 / 0.1);
 }
 
-/* Narrative thread — a hairline with a light pulse traveling down it */
-.thread {
+/* Narrative thread — a hairline with a light pulse traveling across it */
+.thread-x {
   position: absolute;
-  left: 4px;
   top: 0;
-  bottom: 0;
-  width: 1px;
+  left: 0;
+  right: 0;
+  height: 1px;
   background: var(--color-border);
   overflow: hidden;
 }
-.thread::after {
+.thread-x::after {
   content: '';
   position: absolute;
-  top: -160px;
-  left: -1px;
-  width: 3px;
-  height: 160px;
-  background: linear-gradient(180deg, transparent, oklch(0.21 0.045 258 / 0.75), transparent);
-  animation: thread-light 5.5s linear infinite;
+  top: -1px;
+  left: -220px;
+  width: 220px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, oklch(0.21 0.045 258 / 0.75), transparent);
+  animation: thread-light-x 5.5s linear infinite;
 }
-@keyframes thread-light {
+@keyframes thread-light-x {
   to {
-    transform: translateY(1500px);
+    transform: translateX(1700px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .thread::after {
+  .thread-x::after {
     display: none;
   }
 }

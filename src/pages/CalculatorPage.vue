@@ -101,7 +101,15 @@ const configQuoteHref = computed(() => {
 
     <div class="grid divide-y border md:grid-cols-3 md:divide-x md:divide-y-0">
       <div v-for="(t, index) in TIERS" :key="t.id" v-reveal="index * 100" class="flex flex-col p-8">
-        <span class="label-caps">{{ t.name }}</span>
+        <div class="flex items-center justify-between gap-4">
+          <span class="label-caps">{{ t.name }}</span>
+          <span
+            v-if="t.id === 2"
+            class="bg-primary px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-primary-foreground"
+          >
+            Most deployed
+          </span>
+        </div>
         <h3 class="mt-2 text-2xl font-bold text-foreground">{{ t.label }}</h3>
         <div class="mt-6 text-4xl font-extrabold tracking-tight text-foreground">
           {{ formatEur(t.capex) }}

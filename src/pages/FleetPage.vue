@@ -9,8 +9,11 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import NextStep from '@/components/NextStep.vue'
+import NodeThumb from '@/components/NodeThumb.vue'
 import SectionHeading from '@/components/SectionHeading.vue'
 import { formatEur, TIERS, type Tier } from '@/lib/tco'
+
+const thumbUnits: Record<number, number> = { 1: 3, 2: 4, 3: 8 }
 
 function tierQuoteHref(tier: Tier): string {
   const subject = encodeURIComponent(`Quote request — ${tier.name} ${tier.label}`)
@@ -54,7 +57,10 @@ const highlights = [
         v-reveal="index * 100"
         class="flex flex-col p-8"
       >
-        <span class="label-caps">Tier {{ tier.id }}</span>
+        <div class="flex items-start justify-between gap-4">
+          <span class="label-caps">Tier {{ tier.id }}</span>
+          <NodeThumb :units="thumbUnits[tier.id]" />
+        </div>
         <h3 class="mt-3 text-2xl font-bold text-foreground">{{ tier.label }}</h3>
         <p class="mt-1 text-sm text-muted-foreground">{{ tier.useCase }}</p>
         <ul class="mt-6 space-y-2 text-sm text-foreground">
