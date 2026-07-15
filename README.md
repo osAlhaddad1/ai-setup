@@ -26,13 +26,23 @@ npm run build      # production build to dist/
 
 ## Pages
 
-| Route         | Purpose                                                          |
-| ------------- | ---------------------------------------------------------------- |
-| `/`           | Hero, value propositions, cloud-vs-on-premise comparison          |
-| `/calculator` | Savings calculator — monthly AI bill, team size, usage level     |
-| `/fleet`      | Three hardware tiers with full specification table               |
-| `/deployment` | Four-step deployment pipeline and the open-source software stack |
-| `/faq`        | Technical FAQ and site-audit CTA                                 |
+| Route                       | Purpose                                                       |
+| --------------------------- | ------------------------------------------------------------- |
+| `/`                         | Hero with 3D node, stat grid, lineup, assurances              |
+| `/hardware`                 | Compare page — all tiers with full specification table        |
+| `/hardware/workstation`     | Tier 1 product page                                           |
+| `/hardware/rack-unit`       | Tier 2 product page                                           |
+| `/hardware/enterprise-node` | Tier 3 product page                                           |
+| `/pricing`                  | Transparent tier pricing + payback configurator + quote CTA   |
+| `/deployment`               | Four-step deployment pipeline and software stack              |
+| `/faq`                      | Technical FAQ                                                 |
+| `/about`                    | Company values and facts                                      |
+| `/careers`                  | Open roles                                                    |
+| `/contact`                  | Sales / engineering / careers channels                        |
+
+Legacy paths `/fleet` and `/calculator` redirect to `/hardware` and `/pricing`.
+Navigation uses grouped dropdown menus (Hardware, Resources, Company) plus a
+direct Pricing link and paired header CTAs.
 
 ## TCO model
 

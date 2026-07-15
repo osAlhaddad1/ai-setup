@@ -5,9 +5,8 @@ import { Button } from '@/components/ui/button'
 import NextStep from '@/components/NextStep.vue'
 import NodeThumb from '@/components/NodeThumb.vue'
 import ServerRack3D from '@/components/ServerRack3D.vue'
-import { effectiveMonthly, formatEur, TIERS } from '@/lib/tco'
-
-const thumbUnits: Record<number, number> = { 1: 3, 2: 4, 3: 8 }
+import { PRODUCTS, THUMB_UNITS } from '@/lib/products'
+import { effectiveMonthly, formatEur } from '@/lib/tco'
 
 const models = ['Llama', 'DeepSeek', 'Mistral', 'Qwen', 'Gemma']
 
@@ -63,7 +62,7 @@ const assurances = [
       </p>
       <div class="mt-10 flex flex-wrap items-center gap-4">
         <Button size="lg" as-child>
-          <RouterLink to="/calculator">
+          <RouterLink to="/pricing">
             See pricing
             <ArrowRight />
           </RouterLink>
@@ -124,23 +123,23 @@ const assurances = [
       <span v-reveal class="label-caps mb-10 block">The lineup</span>
       <div class="grid divide-y border md:grid-cols-3 md:divide-x md:divide-y-0">
         <RouterLink
-          v-for="(tier, index) in TIERS"
-          :key="tier.id"
+          v-for="(product, index) in PRODUCTS"
+          :key="product.slug"
           v-reveal="index * 100"
-          to="/fleet"
+          :to="`/hardware/${product.slug}`"
           class="group p-8 transition-colors hover:bg-card"
         >
           <div class="flex items-start justify-between gap-4">
-            <span class="label-caps">{{ tier.name }}</span>
-            <NodeThumb :units="thumbUnits[tier.id]" />
+            <span class="label-caps">{{ product.tier.name }}</span>
+            <NodeThumb :units="THUMB_UNITS[product.tier.id]" />
           </div>
-          <h3 class="mt-2 text-2xl font-bold text-foreground">{{ tier.label }}</h3>
-          <p class="mt-1 text-sm text-muted-foreground">{{ tier.useCase }}</p>
+          <h3 class="mt-2 text-2xl font-bold text-foreground">{{ product.tier.label }}</h3>
+          <p class="mt-1 text-sm text-muted-foreground">{{ product.tagline }}</p>
           <div class="mt-6 flex items-center justify-between">
             <div>
-              <div class="text-xl font-extrabold text-foreground">{{ formatEur(tier.capex) }}</div>
+              <div class="text-xl font-extrabold text-foreground">{{ formatEur(product.tier.capex) }}</div>
               <div class="text-xs text-muted-foreground">
-                ≈ {{ formatEur(effectiveMonthly(tier)) }}/mo over 36 months
+                ≈ {{ formatEur(effectiveMonthly(product.tier)) }}/mo over 36 months
               </div>
             </div>
             <ArrowRight
@@ -175,5 +174,5 @@ const assurances = [
     </div>
   </section>
 
-  <NextStep to="/fleet" index="01" title="The hardware" />
+  <NextStep to="/hardware" index="01" title="The hardware" />
 </template>
