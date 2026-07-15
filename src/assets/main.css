@@ -1,0 +1,218 @@
+@import 'tailwindcss';
+
+/*
+  IRONNODE theme — Swiss duotone, light.
+  Warm off-white ground, deep navy ink. No third color: hierarchy is
+  carried by size, weight, and opacity.
+*/
+:root {
+  --background: oklch(0.965 0.007 85);
+  --foreground: oklch(0.21 0.045 258);
+  --card: oklch(0.99 0.004 85);
+  --card-foreground: oklch(0.21 0.045 258);
+  --popover: oklch(0.99 0.004 85);
+  --popover-foreground: oklch(0.21 0.045 258);
+  --primary: oklch(0.21 0.045 258);
+  --primary-foreground: oklch(0.965 0.007 85);
+  --secondary: oklch(0.92 0.01 85);
+  --secondary-foreground: oklch(0.21 0.045 258);
+  --muted: oklch(0.93 0.009 85);
+  --muted-foreground: oklch(0.45 0.025 258);
+  --accent: oklch(0.92 0.01 85);
+  --accent-foreground: oklch(0.21 0.045 258);
+  --destructive: oklch(0.55 0.2 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.21 0.045 258 / 0.14);
+  --input: oklch(0.21 0.045 258 / 0.28);
+  --ring: oklch(0.21 0.045 258);
+  --radius: 0.25rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', monospace;
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--reka-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--reka-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'tnum';
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    letter-spacing: -0.03em;
+  }
+  ::selection {
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+  }
+}
+
+/* Small-caps section label, e.g. "01 — Hardware" */
+.label-caps {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-muted-foreground);
+}
+
+/* Soft paper shadow for elevated panels */
+.panel-shadow {
+  box-shadow:
+    0 24px 60px -20px oklch(0.21 0.045 258 / 0.22),
+    0 4px 14px -6px oklch(0.21 0.045 258 / 0.1);
+}
+
+/* ---------- Glassmorphism ----------
+   Frosted panels over the fixed glow backdrop. The backdrop is static,
+   so backdrop-filter regions rasterize once and stay cheap. */
+.glass {
+  background: linear-gradient(150deg, oklch(1 0 0 / 0.6), oklch(1 0 0 / 0.32)) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-color: oklch(1 0 0 / 0.6) !important;
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.75),
+    0 18px 44px -18px oklch(0.21 0.045 258 / 0.2);
+}
+.glass-strong {
+  background: oklch(1 0 0 / 0.68) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-color: oklch(1 0 0 / 0.65) !important;
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.8);
+}
+
+/* Static glow backdrop the glass panels diffuse */
+.glow {
+  position: absolute;
+  border-radius: 50%;
+}
+.glow-1 {
+  width: 55vw;
+  height: 55vw;
+  top: -18%;
+  left: -12%;
+  background: radial-gradient(circle, oklch(0.6 0.12 258 / 0.18) 0%, transparent 70%);
+}
+.glow-2 {
+  width: 46vw;
+  height: 46vw;
+  top: 26%;
+  right: -14%;
+  background: radial-gradient(circle, oklch(0.72 0.1 230 / 0.16) 0%, transparent 70%);
+}
+.glow-3 {
+  width: 40vw;
+  height: 40vw;
+  bottom: -12%;
+  left: 22%;
+  background: radial-gradient(circle, oklch(0.55 0.11 285 / 0.12) 0%, transparent 70%);
+}
+
+/* Narrative thread — a hairline with a light pulse traveling across it */
+.thread-x {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+.thread-x::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -220px;
+  width: 220px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, oklch(0.21 0.045 258 / 0.75), transparent);
+  animation: thread-light-x 5.5s linear infinite;
+}
+@keyframes thread-light-x {
+  to {
+    transform: translateX(1700px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thread-x::after {
+    display: none;
+  }
+}
+
+/* ---------- Scroll reveal ---------- */
+.reveal-init {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.reveal-in {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-init {
+    opacity: 1;
+    transform: none;
+  }
+  .reveal-in {
+    transition: none;
+  }
+}
