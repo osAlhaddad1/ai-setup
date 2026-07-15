@@ -59,7 +59,7 @@ function toggleMenu(label: string) {
 </script>
 
 <template>
-  <header class="sticky top-0 z-50 border-b bg-background/90 backdrop-blur-sm">
+  <header class="glass-strong sticky top-0 z-50 border-b">
     <div class="mx-auto flex h-16 max-w-6xl items-center gap-10 px-6">
       <RouterLink
         to="/"
@@ -93,13 +93,13 @@ function toggleMenu(label: string) {
           </button>
           <div
             v-if="openMenu === menu.label"
-            class="panel-shadow absolute left-0 top-full w-72 border bg-card p-2"
+            class="glass-strong panel-shadow absolute left-0 top-full w-72 border p-2"
           >
             <RouterLink
               v-for="item in menu.items"
               :key="item.to"
               :to="item.to"
-              class="block rounded-md px-3 py-2.5 transition-colors hover:bg-accent"
+              class="block rounded-md px-3 py-2.5 transition-colors hover:bg-white/70"
             >
               <div class="text-sm font-semibold text-foreground">{{ item.title }}</div>
               <div class="mt-0.5 text-xs text-muted-foreground">{{ item.desc }}</div>

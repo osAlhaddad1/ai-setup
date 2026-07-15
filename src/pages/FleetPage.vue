@@ -25,7 +25,7 @@ import { formatEur } from '@/lib/tco'
       lede="Assembled, burned in for 72 hours at full load, delivered ready to run."
     />
 
-    <div class="grid divide-y border md:grid-cols-3 md:divide-x md:divide-y-0">
+    <div class="glass grid divide-y border md:grid-cols-3 md:divide-x md:divide-y-0">
       <div
         v-for="(product, index) in PRODUCTS"
         :key="product.slug"
@@ -57,7 +57,7 @@ import { formatEur } from '@/lib/tco'
     </div>
 
     <h2 class="mb-6 mt-20 text-2xl font-bold text-foreground">Full specifications</h2>
-    <div v-reveal class="border">
+    <div v-reveal class="glass border">
       <Table>
         <TableHeader>
           <TableRow>

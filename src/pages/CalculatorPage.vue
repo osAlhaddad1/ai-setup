@@ -99,7 +99,7 @@ const configQuoteHref = computed(() => {
       lede="Every node ships assembled, burned in, and ready to rack. No metering, no per-seat licenses."
     />
 
-    <div class="grid divide-y border md:grid-cols-3 md:divide-x md:divide-y-0">
+    <div class="glass grid divide-y border md:grid-cols-3 md:divide-x md:divide-y-0">
       <div v-for="(t, index) in TIERS" :key="t.id" v-reveal="index * 100" class="flex flex-col p-8">
         <div class="flex items-center justify-between gap-4">
           <span class="label-caps">{{ t.name }}</span>
@@ -141,7 +141,7 @@ const configQuoteHref = computed(() => {
         <div class="space-y-12">
           <div>
             <Label class="text-base font-semibold text-foreground">What will it run?</Label>
-            <div class="mt-4 grid grid-cols-3 divide-x border" role="radiogroup" aria-label="Workload">
+            <div class="glass mt-4 grid grid-cols-3 divide-x border" role="radiogroup" aria-label="Workload">
               <button
                 v-for="option in workloadOptions"
                 :key="option.value"
@@ -152,7 +152,7 @@ const configQuoteHref = computed(() => {
                 :class="
                   workload === option.value
                     ? 'bg-primary text-primary-foreground'
-                    : 'text-foreground hover:bg-card'
+                    : 'text-foreground hover:bg-white/50'
                 "
                 @click="workload = option.value"
               >
@@ -219,7 +219,7 @@ const configQuoteHref = computed(() => {
         </div>
 
         <!-- Result -->
-        <div class="panel-shadow h-fit border bg-card p-10 lg:sticky lg:top-24" aria-live="polite">
+        <div class="glass panel-shadow h-fit border p-10 lg:sticky lg:top-24" aria-live="polite">
           <div class="flex items-baseline justify-between gap-4">
             <span class="label-caps">Your configuration</span>
             <span class="text-sm font-semibold text-foreground">

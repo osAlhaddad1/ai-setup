@@ -29,13 +29,13 @@ const channels = [
   <section class="mx-auto max-w-6xl px-6 py-20">
     <SectionHeading label="Contact" title="Talk to a human." lede="One office. No ticket queues." />
 
-    <div class="grid divide-y border md:grid-cols-3 md:divide-x md:divide-y-0">
+    <div class="glass grid divide-y border md:grid-cols-3 md:divide-x md:divide-y-0">
       <a
         v-for="(channel, index) in channels"
         :key="channel.title"
         v-reveal="index * 100"
         :href="channel.href"
-        class="group p-8 transition-colors hover:bg-card"
+        class="group p-8 transition-colors hover:bg-white/50"
       >
         <h3 class="font-bold text-foreground">{{ channel.title }}</h3>
         <p class="mt-2 text-sm text-muted-foreground">{{ channel.body }}</p>

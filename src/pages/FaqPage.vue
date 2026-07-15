@@ -31,7 +31,7 @@ const faqs = [
 <template>
   <section class="mx-auto max-w-6xl px-6 py-20">
     <SectionHeading label="04 — FAQ" title="What your IT team will ask." />
-    <Accordion type="single" collapsible class="max-w-3xl border-t">
+    <Accordion type="single" collapsible class="glass max-w-3xl border px-6">
       <AccordionItem v-for="faq in faqs" :key="faq.q" :value="faq.q">
         <AccordionTrigger class="py-6 text-base">{{ faq.q }}</AccordionTrigger>
         <AccordionContent class="text-[15px] leading-relaxed">{{ faq.a }}</AccordionContent>

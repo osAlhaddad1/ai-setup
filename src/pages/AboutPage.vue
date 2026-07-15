@@ -32,7 +32,7 @@ const facts = [
       lede="IRONNODE builds and installs on-premise AI infrastructure. We put open models on machines you own, inside networks you control."
     />
 
-    <div class="grid divide-y border md:grid-cols-3 md:divide-x md:divide-y-0">
+    <div class="glass grid divide-y border md:grid-cols-3 md:divide-x md:divide-y-0">
       <div v-for="(value, index) in values" :key="value.title" v-reveal="index * 100" class="p-8">
         <h3 class="font-bold text-foreground">{{ value.title }}</h3>
         <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{{ value.body }}</p>

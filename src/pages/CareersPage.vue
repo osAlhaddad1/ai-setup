@@ -23,13 +23,13 @@ function applyHref(role: string): string {
       lede="Small team. Real machines. Customers you can name."
     />
 
-    <div class="border-t">
+    <div class="glass border px-6">
       <a
         v-for="(role, index) in roles"
         :key="role.title"
         v-reveal="index * 80"
         :href="applyHref(role.title)"
-        class="group grid items-center gap-2 border-b py-6 transition-colors hover:bg-card sm:grid-cols-[2fr_1fr_1fr_auto]"
+        class="group grid items-center gap-2 border-b py-6 transition-colors last:border-b-0 hover:bg-white/50 sm:grid-cols-[2fr_1fr_1fr_auto]"
       >
         <span class="font-bold text-foreground">{{ role.title }}</span>
         <span class="text-sm text-muted-foreground">{{ role.team }}</span>

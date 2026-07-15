@@ -67,7 +67,7 @@ const showLocal = ref(true)
       title="Four steps to handover."
       lede="Weeks, not quarters. One team from audit to handover."
     />
-    <div class="grid divide-y border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+    <div class="glass grid divide-y border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
       <div v-for="item in timeline" :key="item.unit" class="p-8">
         <div class="text-4xl font-extrabold tracking-tight text-foreground">{{ item.stat }}</div>
         <div class="mt-1 text-sm text-muted-foreground">{{ item.unit }}</div>
@@ -132,7 +132,7 @@ const showLocal = ref(true)
         </ul>
       </div>
       <div v-reveal="150">
-        <div class="flex border" role="tablist" aria-label="Before and after">
+        <div class="glass-strong flex border" role="tablist" aria-label="Before and after">
           <button
             type="button"
             role="tab"
@@ -154,7 +154,7 @@ const showLocal = ref(true)
             After — your node
           </button>
         </div>
-        <div class="overflow-x-auto border border-t-0 bg-card p-6">
+        <div class="glass overflow-x-auto border border-t-0 p-6">
           <pre v-if="showLocal" class="font-mono text-[13px] leading-relaxed"><code><span class="text-muted-foreground"># your node — same request, new address</span>
 <span class="text-foreground">curl http://ai-node.internal:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
@@ -186,7 +186,7 @@ const showLocal = ref(true)
           v-for="(item, index) in needs"
           :key="item.title"
           v-reveal="index * 80"
-          class="bg-background p-7"
+          class="glass p-7"
         >
           <h3 class="font-bold text-foreground">{{ item.title }}</h3>
           <p class="mt-1.5 text-sm text-muted-foreground">{{ item.body }}</p>
@@ -204,7 +204,7 @@ const showLocal = ref(true)
           We don't disappear.
         </h2>
       </div>
-      <div class="grid divide-y border md:grid-cols-3 md:divide-x md:divide-y-0">
+      <div class="glass grid divide-y border md:grid-cols-3 md:divide-x md:divide-y-0">
         <div v-for="(item, index) in after" :key="item.title" v-reveal="index * 100" class="p-8">
           <h3 class="font-bold text-foreground">{{ item.title }}</h3>
           <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{{ item.body }}</p>

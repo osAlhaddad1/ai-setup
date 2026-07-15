@@ -169,7 +169,7 @@ const process = [
           From a node under a desk to a training-class machine in your rack.
         </p>
       </div>
-      <div class="grid divide-y border md:grid-cols-3 md:divide-x md:divide-y-0">
+      <div class="glass grid divide-y border md:grid-cols-3 md:divide-x md:divide-y-0">
         <div
           v-for="(product, index) in PRODUCTS"
           :key="product.slug"
@@ -220,7 +220,7 @@ const process = [
           The machine arrives as a working AI platform, not a parts list.
         </p>
       </div>
-      <Accordion v-reveal="100" type="single" collapsible class="border-t">
+      <Accordion v-reveal="100" type="single" collapsible class="glass h-fit border px-6">
         <AccordionItem v-for="item in included" :key="item.q" :value="item.q">
           <AccordionTrigger class="py-5 text-base">{{ item.q }}</AccordionTrigger>
           <AccordionContent class="text-[15px]">{{ item.a }}</AccordionContent>
@@ -246,7 +246,7 @@ const process = [
           v-for="(item, index) in security"
           :key="item.title"
           v-reveal="index * 80"
-          class="bg-background p-7"
+          class="glass p-7"
         >
           <h3 class="font-bold text-foreground">{{ item.title }}</h3>
           <p class="mt-1.5 text-sm text-muted-foreground">{{ item.body }}</p>

@@ -66,7 +66,7 @@ watchEffect(() => {
     <section class="border-t">
       <div class="mx-auto max-w-6xl px-6 py-20">
         <h2 v-reveal class="mb-8 text-2xl font-bold text-foreground">Specifications</h2>
-        <dl v-reveal class="max-w-3xl border-t">
+        <dl v-reveal class="glass max-w-3xl border px-6">
           <div
             v-for="spec in specsFor(product.tier.id)"
             :key="spec.label"
